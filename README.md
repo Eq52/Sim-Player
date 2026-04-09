@@ -22,7 +22,7 @@
 
 ---
 
-> It creat with AI
+> It create with AI
 
 ---
 

@@ -22,6 +22,10 @@
 
 ---
 
+> It creat with AI
+
+---
+
 ## 功能特性
 
 - **多格式支持** — 支持 MP4、WebM、OGG 及 HLS（M3U8）流媒体格式

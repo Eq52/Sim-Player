@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Hls from 'hls.js';
+import { toast } from '@/hooks/use-toast';
 import {
   Play,
   Pause,
@@ -198,6 +199,9 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
 
 
 
+  // Track whether we've retried loading without CORS
+  const corsRetryRef = useRef(false);
+
   // Initialize video
   useEffect(() => {
     const video = videoRef.current;
@@ -208,10 +212,19 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
       hlsRef.current = null;
     }
 
+    // Reset CORS retry flag on src change
+    corsRetryRef.current = false;
+
+    // Set crossOrigin to enable CORS for canvas screenshot
+    video.crossOrigin = 'anonymous';
+
     if (format === 'HLS' && Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
+        xhrSetup: (xhr) => {
+          xhr.withCredentials = false;
+        },
       });
       hls.loadSource(src);
       hls.attachMedia(video);
@@ -243,7 +256,51 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
       video.src = src;
     }
 
+    // If CORS blocks the video load, retry without crossOrigin
+    const handleError = () => {
+      if (!corsRetryRef.current && video.crossOrigin === 'anonymous') {
+        corsRetryRef.current = true;
+        video.removeAttribute('crossOrigin');
+        if (format === 'HLS' && Hls.isSupported()) {
+          // Retry HLS without CORS xhr setup
+          if (hlsRef.current) {
+            hlsRef.current.destroy();
+          }
+          const hls = new Hls({
+            enableWorker: true,
+            lowLatencyMode: true,
+          });
+          hls.loadSource(src);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.ERROR, (_event, data) => {
+            if (data.fatal) {
+              switch (data.type) {
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                  onError?.('Network error while loading video. Please check the URL.');
+                  hls.startLoad();
+                  break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                  onError?.('Media error. Trying to recover...');
+                  hls.recoverMediaError();
+                  break;
+                default:
+                  onError?.('Fatal error loading video. Please try another URL.');
+                  hls.destroy();
+                  break;
+              }
+            }
+          });
+          hlsRef.current = hls;
+        } else {
+          video.src = src;
+        }
+      }
+    };
+
+    video.addEventListener('error', handleError);
+
     return () => {
+      video.removeEventListener('error', handleError);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
@@ -615,24 +672,46 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const timestamp = formatTime(currentTime).replace(/:/g, '-');
-        a.download = `screenshot_${timestamp}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 'image/png');
+      // Try toBlob — may throw SecurityError if canvas is tainted (cross-origin without CORS)
+      let blobReturned = false;
+      try {
+        canvas.toBlob((blob) => {
+          blobReturned = true;
+          if (!blob) {
+            toast({
+              title: '截图失败',
+              description: '无法生成截图数据',
+            });
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const timestamp = formatTime(currentTime).replace(/:/g, '-');
+          a.download = `screenshot_${timestamp}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      } catch (securityErr) {
+        // canvas.toBlob threw SecurityError — tainted canvas (cross-origin without CORS)
+        toast({
+          title: '截图失败',
+          description: '跨域视频无法截取画面，视频源未启用 CORS',
+        });
+        return;
+      }
 
       // Flash feedback
       setShowScreenshotFlash(true);
       setTimeout(() => setShowScreenshotFlash(false), 300);
     } catch (err) {
       console.error('Screenshot error:', err);
+      toast({
+        title: '截图失败',
+        description: '发生未知错误',
+      });
     }
   }, [currentTime]);
 
@@ -722,6 +801,7 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
         ref={videoRef}
         className="w-full h-full object-contain"
         playsInline
+        crossOrigin="anonymous"
         preload="metadata"
         onClick={handleClick}
       />

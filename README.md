@@ -66,7 +66,7 @@ npm run preview
 
 ### 直接部署
 
-下载 `SimPlayer-deploy.zip` ((Go)[https://github.com/Eq52/Sim-Player/releases/download/v1.0.0/SimPlayer-deploy.zip]) ，解压后将其中的所有文件上传至任意静态托管服务即可。
+下载 `SimPlayer-deploy.zip` ([Go](https://github.com/Eq52/Sim-Player/releases/download/v1.0.0/SimPlayer-deploy.zip)) ，解压后将其中的所有文件上传至任意静态托管服务即可。
 
 ## 使用方式
 

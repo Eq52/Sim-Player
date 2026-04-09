@@ -186,7 +186,7 @@ server {
 
 ## 作者
 
-[Eric](https://ericq521.web.app/)
+[Eric](https://github.com/Eq52)
 
 ## 许可证
 

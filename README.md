@@ -186,7 +186,7 @@ server {
 
 ## 作者
 
-[Eric](https://github.com/Eq52)
+[Eq52](https://github.com/Eq52) and `GLM-5-Turbo`
 
 ## 许可证
 

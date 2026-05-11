@@ -217,8 +217,7 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
 
     // Set crossOrigin to enable CORS for canvas screenshot
     video.crossOrigin = 'anonymous';
-    video.referrerPolicy = 'no-referrer';
-    
+
     if (format === 'HLS' && Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,

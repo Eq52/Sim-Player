@@ -803,6 +803,7 @@ export default function VideoPlayer({ src, title, poster, onVideoInfo, onError }
         playsInline
         crossOrigin="anonymous"
         preload="metadata"
+        referrerPolicy="no-referrer"        
         onClick={handleClick}
       />
 

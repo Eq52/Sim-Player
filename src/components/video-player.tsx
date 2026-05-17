@@ -765,9 +765,9 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
         className="w-full h-full object-contain"
         playsInline
         crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
         preload="metadata"
         onClick={handleClick}
+        {...({ referrerPolicy: "no-referrer" } as any)}
       />
 
       {/* Video Cover (shown before first play) */}

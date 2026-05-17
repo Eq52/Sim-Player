@@ -265,7 +265,7 @@ See [CHANGELOG.md](CHANGELOG.md) for details.
 
 ## Author
 
-[Eq52](https://github.com/Eq52)
+[Eq52](https://github.com/Eq52) and `GLM-5-Turbo`
 
 ## License
 

@@ -127,7 +127,6 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
   // Player state
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasEverPlayed, setHasEverPlayed] = useState(false);
-  // FIX: removed unused `setCoverUrl` — cover URL is static per props
   const [coverUrl] = useState<string | null>(poster || '/poster.png');
   const [coverFading, setCoverFading] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
@@ -168,8 +167,6 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
 
   // Track whether resume prompt has been shown for current src
   const resumePromptShownRef = useRef(false);
-
-  // FIX: removed unused `progressRestoredRef`
 
   // Mobile touch drag state
   const [isDragging, setIsDragging] = useState(false);
@@ -243,7 +240,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
     corsRetryRef.current = false;
 
-    // FIX: iOS Safari sets crossOrigin breaks HLS native playback
+    // iOS Safari: setting crossOrigin breaks HLS native playback
     if (!isIOS) video.crossOrigin = 'anonymous';
 
     // iOS native HLS handler references (for cleanup)
@@ -304,7 +301,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
 
     // If CORS blocks the video load, retry without crossOrigin
     const handleError = () => {
-      // FIX: iOS native HLS has its own error handler, skip CORS retry to avoid double trigger
+      // iOS native HLS has its own error handler, skip CORS retry
       if (isIOSNativeHLS) return;
       if (!corsRetryRef.current && video.crossOrigin === 'anonymous') {
         corsRetryRef.current = true;
@@ -386,7 +383,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     return () => {
       clearInterval(saveTimer);
       if (video.currentTime > 0) saveProgress(video.currentTime);
-      // FIX: cleanup resumePromptTimer on unmount to prevent state update on unmounted component
+      // Cleanup resumePromptTimer on unmount
       if (resumePromptTimerRef.current) {
         clearTimeout(resumePromptTimerRef.current);
         resumePromptTimerRef.current = null;
@@ -442,7 +439,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     } catch (err) { console.error('Fullscreen error:', err); }
   }, []);
 
-  // ── Controls auto-hide (FIX: added showShortcutsDialog) ──────
+  // ── Controls auto-hide ──────────────────────────────────────
   const handleMouseMove = useCallback(() => {
     if (isDraggingRef.current) return; // don't reset timer while dragging
     setShowControls(true);
@@ -456,7 +453,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     }, 3000);
   }, [isPlaying, contextMenu.visible, showParamsDialog, showShortcutsDialog]);
 
-  // FIX: Keep controls visible while paused
+  // Keep controls visible while paused
   useEffect(() => {
     if (isPaused) {
       setShowControls(true);
@@ -517,7 +514,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleFullscreen, showParamsDialog, showShortcutsDialog]);
 
-  // ── Fullscreen change listener (FIX: webkit prefix) ─────────
+  // ── Fullscreen change listener ─────────────────────────────
   useEffect(() => {
     const handleFsChange = () => {
       const isFs = !!getFullscreenElement();
@@ -634,7 +631,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
     if (v) v.currentTime = Math.max(0, v.currentTime - 5);
   }, []);
 
-  // ── Screenshot (FIX: removed unused blobReturned, stable reference) ──
+  // ── Screenshot ──────────────────────────────────────────────
   const handleScreenshot = useCallback(() => {
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) return;
@@ -669,7 +666,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
       console.error('Screenshot error:', err);
       toast({ title: '截图失败', description: '发生未知错误' });
     }
-  }, []); // FIX: empty deps — reads video.currentTime directly from ref
+  }, []); // reads video.currentTime directly from ref
 
   // ── Mobile touch drag on progress bar ────────────────────────
   useEffect(() => {
@@ -975,7 +972,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
               <span className="text-white/90 text-[13px]">快捷键帮助</span>
             </button>
             <div className="mx-2 border-t border-white/8" />
-            {/* FIX: added toast feedback for cache clear */}
+            {/* Cache clear with toast feedback */}
             <button onClick={() => { dismissContextMenu(); clearAllProgress(); toast({ title: '已清除', description: '所有播放缓存已删除' }); }} className="w-full flex items-center gap-2.5 px-3 py-[7px] hover:bg-white/10 transition-colors text-left">
               <Trash2 className="w-3.5 h-3.5 text-sim-accent shrink-0" />
               <span className="text-white/90 text-[13px]">删除播放缓存</span>

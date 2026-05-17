@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "SimPlayer",
-  description: "A minimalist HTML5 video player.",
+  description: "A minimalist HTML5 video player with HLS streaming, iOS compatibility, picture-in-picture, and embeddable design.",
   icons: {
     icon: "/favicon.ico",
   },

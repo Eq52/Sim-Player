@@ -1,6 +1,7 @@
 {
-  "name": "nextjs_tailwind_shadcn_ts",
-  "version": "0.2.0",
+  "name": "simplayer",
+  "version": "1.0.0",
+  "description": "A minimalist HTML5 video player with HLS, iOS compatibility, and embeddable design.",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",

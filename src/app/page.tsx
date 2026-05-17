@@ -7,11 +7,20 @@ function useQueryParams() {
   const [params, setParams] = useState<{ url: string; title: string }>({ url: '', title: '' });
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    setParams({
-      url: searchParams.get('url') || '',
-      title: searchParams.get('title') || '',
-    });
+    const raw = window.location.search;
+    if (!raw) return;
+
+    // Extract title first (it's a simple, known parameter)
+    const titleMatch = raw.match(/[?&]title=([^&]*)/);
+    const title = titleMatch ? decodeURIComponent(titleMatch[1]) : '';
+
+    // Extract url — the video URL itself may contain ? and & characters,
+    // so URLSearchParams would incorrectly split it. Instead, capture
+    // everything from "url=" until the next known parameter (&title=) or end.
+    const urlMatch = raw.match(/[?&]url=(.*?)(?:&title=|$)/);
+    const url = urlMatch ? decodeURIComponent(urlMatch[1]) : '';
+
+    setParams({ url, title });
   }, []);
 
   return params;

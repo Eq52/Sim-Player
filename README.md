@@ -41,6 +41,7 @@
 - **截图文件名** — 包含时间戳信息（如 `screenshot_1-23-45.png`）
 - **缓存清除反馈** — 删除播放缓存后弹出 Toast 通知确认操作成功
 - **响应式设计** — 全面适配桌面端、平板和手机屏幕，控件尺寸随屏幕自适应
+- **防盗链兼容** — 自动设置 `referrerPolicy="no-referrer"`，支持 B 站等 CDN 防盗链视频源
 - **纯静态导出** — 构建产物为纯静态文件，可部署至任意静态托管平台
 - **iframe 嵌入** — 可作为独立播放器嵌入其他网页
 
@@ -73,7 +74,7 @@ npm run preview
 
 ### 直接部署
 
-下载 `SimPlayer-deploy.zip` ([Go](https://github.com/Eq52/Sim-Player/releases/download/v1.0.0/SimPlayer-deploy.zip)) ，解压后将其中的所有文件上传至任意静态托管服务即可。
+下载 `SimPlayer-v2.0.0-deploy.zip` ([Go](https://github.com/Eq52/Sim-Player/releases/download/v2.0.0/SimPlayer-v2.0.0-deploy.zip)) ，解压后将其中的所有文件上传至任意静态托管服务即可。
 
 ## 使用方式
 
@@ -225,6 +226,38 @@ server {
 - 画中画功能需浏览器支持，且在 iframe 中使用时需添加 `allow="picture-in-picture"` 属性
 - 播放进度存储于浏览器 localStorage，清除浏览器数据会导致进度丢失
 - iOS Safari 的全屏模式仅作用于 `<video>` 元素（浏览器限制），不支持容器级全屏
+
+## 更新日志
+
+### v2.0.0
+
+**全面重构 & 兼容性升级：**
+
+- 新增 iOS 原生 HLS 播放支持（自动检测 iOS 设备，Safari 原生解析 M3U8）
+- 新增 iOS HLS 错误恢复与卡顿恢复机制
+- 新增 WebKit 前缀全屏兼容（Safari / 旧版浏览器）
+- 新增 iOS Safari `webkitEnterFullscreen` 视频元素全屏
+- 新增 WebKit PiP 检测兼容旧版 Safari
+- 新增移动端进度条触摸拖拽支持
+- 新增进度条热区（控件隐藏时悬停可触发显示）
+- 新增暂停时控件常驻显示
+- 新增 CORS 降级重试机制
+- 新增截图文件名时间戳
+- 新增截图屏幕闪烁反馈
+- 新增缓存清除 Toast 通知
+- 新增快捷键帮助对话框
+- 新增全屏模式下对话框自动重新进入全屏
+- 新增 `referrerPolicy="no-referrer"` 支持 B 站等防盗链视频源
+- 修复控制栏在快捷键对话框打开时误隐藏
+- 修复截图回调每秒重建（useCallback 依赖优化）
+- 修复组件卸载后定时器未清理
+- 移除未使用变量和死代码
+- HLS 初始化代码 DRY 重构（提取 `initHls()` 函数）
+- 清理开发注释，完善文档
+
+### v1.0.0
+
+- 初始版本发布
 
 ## 作者
 

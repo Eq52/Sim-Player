@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import VideoPlayer from '@/components/video-player';
 
 function useQueryParams() {
-  const [params, setParams] = useState<{ url: string; title: string }>({ url: '', title: '' });
+  const [params, setParams] = useState<{ url: string; title: string; rf: string }>({ url: '', title: '', rf: '' });
 
   useEffect(() => {
     const raw = window.location.search;
@@ -14,20 +14,24 @@ function useQueryParams() {
     const titleMatch = raw.match(/[?&]title=([^&]*)/);
     const title = titleMatch ? decodeURIComponent(titleMatch[1]) : '';
 
+    // Extract rf (referrer policy control)
+    const rfMatch = raw.match(/[?&]rf=([^&]*)/);
+    const rf = rfMatch ? decodeURIComponent(rfMatch[1]) : '';
+
     // Extract url — the video URL itself may contain ? and & characters,
     // so URLSearchParams would incorrectly split it. Instead, capture
-    // everything from "url=" until the next known parameter (&title=) or end.
-    const urlMatch = raw.match(/[?&]url=(.*?)(?:&title=|$)/);
+    // everything from "url=" until the next known parameter (&title=|&rf=) or end.
+    const urlMatch = raw.match(/[?&]url=(.*?)(?:&title=|&rf=|$)/);
     const url = urlMatch ? decodeURIComponent(urlMatch[1]) : '';
 
-    setParams({ url, title });
+    setParams({ url, title, rf });
   }, []);
 
   return params;
 }
 
 function PlayerContent() {
-  const { url, title } = useQueryParams();
+  const { url, title, rf } = useQueryParams();
 
   if (!url) {
     return (
@@ -55,7 +59,7 @@ function PlayerContent() {
     );
   }
 
-  return <VideoPlayer src={url} title={title} />;
+  return <VideoPlayer src={url} title={title} noReferrer={rf !== 'dnc'} />;
 }
 
 export default function HomePage() {

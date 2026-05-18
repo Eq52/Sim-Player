@@ -43,6 +43,9 @@ interface VideoPlayerProps {
   poster?: string;
   /** Whether the container already controls sizing; player should h-full fill instead of aspect-ratio */
   fillContainer?: boolean;
+  /** When true (default), sets referrerPolicy="no-referrer" on <video> to bypass anti-hotlinking.
+   *  Set to false via &rf=dnc to restore normal Referrer behavior. */
+  noReferrer?: boolean;
   onVideoInfo?: (info: { width: number; height: number; duration: number; format: string }) => void;
   onError?: (error: string) => void;
 }
@@ -106,7 +109,7 @@ async function exitFullscreen(): Promise<void> {
   }
 }
 
-export default function VideoPlayer({ src, title, poster, fillContainer, onVideoInfo, onError }: VideoPlayerProps) {
+export default function VideoPlayer({ src, title, poster, fillContainer, noReferrer = true, onVideoInfo, onError }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -767,7 +770,7 @@ export default function VideoPlayer({ src, title, poster, fillContainer, onVideo
         crossOrigin="anonymous"
         preload="metadata"
         onClick={handleClick}
-        {...({ referrerPolicy: "no-referrer" } as any)}
+        {...(noReferrer ? { referrerPolicy: "no-referrer" as const } : {})}
       />
 
       {/* Video Cover (shown before first play) */}

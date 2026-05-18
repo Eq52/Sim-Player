@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-05-18
+
+### Added
+
+- **`&rf=` URL parameter** — New `rf` (referrer) query parameter to control the `<video>` element's referrer policy:
+  - Default (no `&rf=`): `referrerPolicy="no-referrer"` is applied, bypassing CDN anti-hotlinking protection
+  - `&rf=dnc`: Disables the no-referrer override, restoring the browser's default Referer behavior
+
+---
+
 ## [2.0.0] - 2026-05-17
 
 ### Added
